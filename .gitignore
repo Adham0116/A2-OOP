@@ -1,0 +1,32 @@
+# JUCE specific
+Builds/
+JuceLibraryCode/
+
+# Visual Studio
+*.suo
+*.user
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+.vs/
+x64/
+Debug/
+Release/
+
+# Xcode
+*.xcodeproj
+*.xcworkspace
+xcuserdata/
+*.xcconfig
+
+# Compiled files
+*.exe
+*.dll
+*.obj
+*.o
+*.lib
+*.a
+
+# macOS
+.DS_Store
