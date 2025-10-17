@@ -25,7 +25,7 @@ void MainComponent::prepareToPlay(int samplesPerBlockExpected, double sampleRate
 
 void MainComponent::getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill)
 {
-    playerGUI.getNextAudioBlock(bufferToFill);
+    playerGUI.getNextAudioBlock(bufferToFill); 
 }
 
 void MainComponent::releaseResources()
