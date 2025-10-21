@@ -22,9 +22,12 @@ public:
     void setLooping(bool shouldLoop);
     double getPosition() const;
     double getLength() const;
+    void mute();
 
 private:
     bool isLooping = false;
+	bool isMuted = false;
+	float currentGain = 1.0f;
     juce::AudioFormatManager formatManager;
     std::unique_ptr<juce::AudioFormatReaderSource> readerSource;
     juce::AudioTransportSource transportSource;

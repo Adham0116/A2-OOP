@@ -33,6 +33,7 @@ private:
     juce::Slider gainSlider;
     juce::TextButton restartButton;
     juce::ToggleButton loopButton;
+    juce::TextButton muteButton;
     std::unique_ptr<juce::FileChooser> fileChooser;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PlayerGUI)

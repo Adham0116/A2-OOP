@@ -7,7 +7,8 @@ PlayerGUI::PlayerGUI()
   : loadButton("Load"),
     playButton("Play"),
     stopButton("Stop"),
-    restartButton("Restart")
+    restartButton("Restart"),
+    muteButton("Mute")
 {
     // Make the buttons and slider visible on the screen.
     addAndMakeVisible(loadButton);
@@ -16,6 +17,7 @@ PlayerGUI::PlayerGUI()
     addAndMakeVisible(gainSlider);
 	addAndMakeVisible(restartButton);
 	addAndMakeVisible(loopButton);
+	addAndMakeVisible(muteButton);
 
     // Register this class to listen for clicks and slider movements.
     loadButton.addListener(this);
@@ -24,6 +26,7 @@ PlayerGUI::PlayerGUI()
     gainSlider.addListener(this);
     loopButton.addListener(this);
     restartButton.addListener(this);
+	muteButton.addListener(this);
     // Configure the gain slider.
     gainSlider.setRange(0.0, 1.0, 0.01);
     gainSlider.setValue(0.5);
@@ -44,6 +47,7 @@ PlayerGUI::~PlayerGUI()
     gainSlider.removeListener(this);
     restartButton.removeListener(this);
     loopButton.removeListener(this);
+	muteButton.removeListener(this);
 }
 
 //==============================================================================
@@ -56,14 +60,16 @@ void PlayerGUI::paint(juce::Graphics& g)
 void PlayerGUI::resized()
 {
     // This defines the layout of your GUI components.
-    int padding = 10;
+    int padding = 7;
     int buttonWidth = 100;
     loadButton.setBounds(padding, padding, 100, 30);
     playButton.setBounds(loadButton.getRight() + padding, padding, 100, 30);
     stopButton.setBounds(playButton.getRight() + padding, padding, 100, 30);
     gainSlider.setBounds(padding, loadButton.getBottom() + padding, getWidth() - 2 * padding, 30);
     restartButton.setBounds(stopButton.getRight() + padding, padding, buttonWidth, 30);
-    loopButton.setBounds(restartButton.getRight() + padding, padding, buttonWidth, 30);
+    muteButton.setBounds(restartButton.getRight() + padding, padding, buttonWidth, 30);
+    loopButton.setBounds(muteButton.getRight() + padding, padding, buttonWidth, 30);
+   
 }
 
 //==============================================================================
@@ -109,6 +115,11 @@ void PlayerGUI::buttonClicked(juce::Button* button)
         // We pass this state directly to our audio engine.
         playerAudio.setLooping(loopButton.getToggleState());
     }
+	else if (button == &muteButton)
+        {
+        playerAudio.mute();
+	}
+
 }
 
 // This function is called when the slider's value changes.
