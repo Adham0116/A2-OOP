@@ -29,6 +29,7 @@ void PlayerAudio::getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferTo
         if (isLooping)
         {
             transportSource.setPosition(0.0);
+            transportSource.start();
         }
     }
     // If there's no audio file loaded, just clear the buffer to avoid noise.
