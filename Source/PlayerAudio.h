@@ -1,25 +1,25 @@
 #pragma once
 #include <JuceHeader.h>
 
-class PlayerAudio
-{
+class PlayerAudio{
 public:
     PlayerAudio();
     ~PlayerAudio();
 
-    // These are the core audio processing functions
     void prepareToPlay(int samplesPerBlockExpected, double sampleRate);
     void getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill);
     void releaseResources();
 
-    // These are the playback control functions
     bool loadFile(const juce::File& audioFile);
     void play();
-    void stop();
+    bool isPlaying() const;
+    void pause();
     void setGain(float gain);
     void setPosition(double pos);
     void restart();
     void setLooping(bool shouldLoop);
+    void goToStart();
+    void goToEnd();
     double getPosition() const;
     double getLength() const;
     void mute();
