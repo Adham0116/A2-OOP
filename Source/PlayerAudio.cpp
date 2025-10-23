@@ -5,7 +5,7 @@ PlayerAudio::PlayerAudio(){
 }
 
 PlayerAudio::~PlayerAudio(){
-    transportSource.pause();
+    transportSource.stop();
     transportSource.setSource(nullptr);
     readerSource.reset();
 }
@@ -62,7 +62,7 @@ void PlayerAudio::play(){
 }
 
 void PlayerAudio::pause(){
-    transportSource.pause();
+    transportSource.stop();
 }
 
 void PlayerAudio::restart(){
