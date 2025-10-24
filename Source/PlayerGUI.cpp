@@ -134,7 +134,11 @@ void PlayerGUI::buttonClicked(juce::Button* button){
         playerAudio.restart();
     }
 	else if (button == &muteButton){
-        playerAudio.mute();
+        playerAudio.mute(); 
+        if (playerAudio.isMuted)
+            muteButton.setButtonText("Unmute");
+        else
+            muteButton.setButtonText("Mute");
 	}
     else if (button == &loopButton){
         playerAudio.setLooping(loopButton.getToggleState());

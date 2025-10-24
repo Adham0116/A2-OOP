@@ -24,9 +24,11 @@ public:
     double getLength() const;
     void mute();
 
+    bool isMuted = false;
+
+
 private:
     bool isLooping = false;
-	bool isMuted = false;
 	float currentGain = 1.0f;
     juce::AudioFormatManager formatManager;
     std::unique_ptr<juce::AudioFormatReaderSource> readerSource;
