@@ -10,7 +10,7 @@ public:
     void getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill);
     void releaseResources();
 
-    bool loadFile(const juce::File& audioFile);
+    juce::String loadFile(const juce::File& audioFile);
     void play();
     bool isPlaying() const;
     void pause();

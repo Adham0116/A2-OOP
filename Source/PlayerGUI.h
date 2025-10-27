@@ -4,7 +4,8 @@
 
 class PlayerGUI : public juce::Component,
                   public juce::Button::Listener,
-                  public juce::Slider::Listener{
+                  public juce::Slider::Listener,
+                  public juce::ListBoxModel {
 public:
     PlayerGUI();
     ~PlayerGUI() override;
@@ -19,6 +20,10 @@ public:
     void getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill);
     void releaseResources();
 
+    int getNumRows() override;
+    void paintListBoxItem(int rowNumber, juce::Graphics& g, int width, int height, bool rowIsSelected) override;
+    void listBoxItemClicked(int rowNumber, const juce::MouseEvent& e) override;
+
 private:
     PlayerAudio playerAudio;
 
@@ -32,6 +37,10 @@ private:
     juce::TextButton goToStart;
     juce::TextButton goToEnd;
     std::unique_ptr<juce::FileChooser> fileChooser;
+
+    juce::Label trackTitle;
+    juce::ListBox playlist;
+    juce::Array<juce::File> trackFiles;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PlayerGUI)
 };

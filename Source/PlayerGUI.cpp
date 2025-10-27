@@ -19,6 +19,7 @@ PlayerGUI::PlayerGUI()
 	addAndMakeVisible(muteButton);
 	addAndMakeVisible(goToStart);
 	addAndMakeVisible(goToEnd);
+    addAndMakeVisible(playlist);
 
 
     // Make this class listen for clicks & slider movements
@@ -31,6 +32,7 @@ PlayerGUI::PlayerGUI()
 	muteButton.addListener(this);
 	goToStart.addListener(this);
 	goToEnd.addListener(this);
+    playlist.setModel(this);
 
     // Configure the gain slider.
     gainSlider.setRange(0.0, 1.0, 0.01);
@@ -41,6 +43,10 @@ PlayerGUI::PlayerGUI()
     loopButton.setClickingTogglesState(true);
     // Set the initial gain on the audio player.
     playerAudio.setGain((float)gainSlider.getValue());
+	// Track title constructor
+    addAndMakeVisible(trackTitle);
+    trackTitle.setText("No file loaded", juce::dontSendNotification);
+    trackTitle.setJustificationType(juce::Justification::centred);
 }
 
 // Destructors
@@ -66,55 +72,79 @@ void PlayerGUI::paint(juce::Graphics& g){
 // Layout Design
 void PlayerGUI::resized(){
     const int padding = 10;
-    const int buttonWidth = 100;
-    const int buttonHeight = 100;
+    const int controlsWidth = getWidth() / 2;
+    const int playlistWidth = getWidth() - controlsWidth - padding;
+
+	// Playlist area
+    playlist.setBounds(controlsWidth,padding,playlistWidth,getHeight() - (2 * padding));
+
+
+	// Controls area
+    const int componentWidth = controlsWidth - (2 * padding);
     int xPosition = padding;
     int yPosition = padding;
 
-    //First Row
-    loadButton.setBounds(xPosition, yPosition, buttonWidth, buttonHeight);
-    xPosition += buttonWidth + padding;
-    goToStart.setBounds(xPosition, yPosition, buttonWidth, buttonHeight);
-    xPosition += buttonWidth + padding;
-    playButton.setBounds(xPosition, yPosition, buttonWidth, buttonHeight);
-    xPosition += buttonWidth + padding;
-    pauseButton.setBounds(xPosition, yPosition, buttonWidth, buttonHeight);
-    xPosition += buttonWidth + padding;
-    goToEnd.setBounds(xPosition, yPosition, buttonWidth, buttonHeight);
-    xPosition += buttonWidth + padding;
+    // Row 1
+    trackTitle.setBounds(xPosition, yPosition, componentWidth, 30);
+    yPosition += 30 + padding;
 
-    // Second Row
-    xPosition = padding;
-    yPosition += buttonHeight + padding;
+    // Row 2
+    gainSlider.setBounds(xPosition, yPosition, componentWidth, 30);
+    yPosition += 30 + padding;
 
-    restartButton.setBounds(xPosition, yPosition, buttonWidth, buttonHeight);
-    xPosition += buttonWidth + padding;
-    muteButton.setBounds(xPosition, yPosition, buttonWidth, buttonHeight);
-    xPosition += buttonWidth + padding;
-    loopButton.setBounds(xPosition, yPosition, buttonWidth, buttonHeight);
+    // --- Button Grid ---
+    const int buttonWidth = (componentWidth - (2 * padding)) / 3;
+    const int buttonHeight = 40;
+    int buttonX = xPosition;
 
-    //Third Row
-    yPosition += buttonHeight + padding;
-    gainSlider.setBounds(padding, yPosition, getWidth() - (2 * padding), buttonHeight);
+        // Button Row 1: Go To Start, Play, Pause
+    goToStart.setBounds(buttonX, yPosition, buttonWidth, buttonHeight);
+    buttonX += buttonWidth + padding;
+    playButton.setBounds(buttonX, yPosition, buttonWidth, buttonHeight);
+    buttonX += buttonWidth + padding;
+    pauseButton.setBounds(buttonX, yPosition, buttonWidth, buttonHeight);
 
+    yPosition += buttonHeight + padding; 
+    buttonX = xPosition;                
+
+        // Button Row 2: Go To End, Restart, Load
+    goToEnd.setBounds(buttonX, yPosition, buttonWidth, buttonHeight);
+    buttonX += buttonWidth + padding;
+    restartButton.setBounds(buttonX, yPosition, buttonWidth, buttonHeight);
+    buttonX += buttonWidth + padding;
+    loadButton.setBounds(buttonX, yPosition, buttonWidth, buttonHeight);
+
+    yPosition += buttonHeight + padding; 
+    buttonX = xPosition;                
+
+        // Button Row 3: Mute, Loop
+    muteButton.setBounds(buttonX, yPosition, buttonWidth, buttonHeight);
+    buttonX += buttonWidth + padding;
+    loopButton.setBounds(buttonX, yPosition, buttonWidth, buttonHeight);
 }
 
 //==============================================================================
 
 // Buttons Logic
 void PlayerGUI::buttonClicked(juce::Button* button){
-    if (button == &loadButton){
-        fileChooser = std::make_unique<juce::FileChooser>("Select an audio file...",
+    if (button == &loadButton) {
+        fileChooser = std::make_unique<juce::FileChooser>("Select audio files...",
             juce::File{},
             "*.wav;*.mp3;*.aiff");
 
-        auto folderChooserFlags = juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles;
+        auto folderChooserFlags = juce::FileBrowserComponent::openMode |
+            juce::FileBrowserComponent::canSelectFiles |
+            juce::FileBrowserComponent::canSelectMultipleItems;
 
-        fileChooser->launchAsync(folderChooserFlags, [this](const juce::FileChooser& chooser){
-                juce::File result = chooser.getResult();
-                if (result.exists()){
-                    playerAudio.loadFile(result);
+        fileChooser->launchAsync(folderChooserFlags, [this](const juce::FileChooser& chooser)
+            {
+                auto results = chooser.getResults();
+
+                for (const auto& file : results){
+                    if (file.exists())
+                        trackFiles.add(file);
                 }
+                playlist.updateContent(); 
             });
     }
 	else if (button == &goToStart){
@@ -152,6 +182,28 @@ void PlayerGUI::sliderValueChanged(juce::Slider* slider){
     if (slider == &gainSlider){
         playerAudio.setGain((float)gainSlider.getValue());
     }
+}
+
+//==============================================================================
+
+// Playlist Functions
+int PlayerGUI::getNumRows(){
+    return trackFiles.size();
+}
+void PlayerGUI::paintListBoxItem(int rowNumber, juce::Graphics& g, int width, int height, bool rowIsSelected){
+    if (rowIsSelected)
+        g.fillAll(juce::Colours::blue);
+
+    g.setColour(juce::Colours::white);
+    g.drawText(trackFiles[rowNumber].getFileName(),
+        5, 0, width - 10, height, 
+        juce::Justification::centredLeft, true);
+}
+void PlayerGUI::listBoxItemClicked(int rowNumber, const juce::MouseEvent& e){
+    juce::File fileToPlay = trackFiles[rowNumber];
+    juce::String title = playerAudio.loadFile(fileToPlay);
+    trackTitle.setText(title, juce::dontSendNotification);
+    playerAudio.play();
 }
 
 //==============================================================================

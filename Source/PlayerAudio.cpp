@@ -35,7 +35,7 @@ void PlayerAudio::releaseResources(){
     transportSource.releaseResources();
 }
 
-bool PlayerAudio::loadFile(const juce::File& audioFile){
+juce::String PlayerAudio::loadFile(const juce::File& audioFile){
     transportSource.stop();
     transportSource.setSource(nullptr);
     readerSource.reset();
@@ -43,7 +43,7 @@ bool PlayerAudio::loadFile(const juce::File& audioFile){
     juce::AudioFormatReader* reader = formatManager.createReaderFor(audioFile);
 
     if (reader == nullptr)
-        return false;
+        return "Failed to load";
 
     auto newSource = std::make_unique<juce::AudioFormatReaderSource>(reader, true);
 
@@ -51,7 +51,12 @@ bool PlayerAudio::loadFile(const juce::File& audioFile){
 
     readerSource.reset(newSource.release());
 
-    return true;
+    juce::String title = reader->metadataValues["title"];
+
+    if (title.isEmpty())
+        title = audioFile.getFileName();
+
+    return title;
 }
 bool PlayerAudio::isPlaying() const {
     return transportSource.isPlaying();
